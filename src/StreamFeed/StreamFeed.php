@@ -1,6 +1,8 @@
 <?php
 namespace EventStore\StreamFeed;
 
+use EventStore\ValueObjects\Identity\UUID;
+
 /**
  * Class StreamFeed.
  */
@@ -33,10 +35,33 @@ final class StreamFeed
     }
 
     /**
-     * @return Entry[]
+     * @return EntryWithEvent[]
      */
     public function getEntries()
     {
+        if($this->entryEmbedMode->sameValueAs(EntryEmbedMode::BODY()))
+        {
+            return array_map(
+                function (array $jsonEntry) {
+                    $entry = new Entry($jsonEntry);
+
+                    $event = new Event(
+                        $jsonEntry['eventType'],
+                        $jsonEntry['positionEventNumber'],
+                        json_decode($jsonEntry['data'], true),
+                        json_decode($jsonEntry['metaData'], true),
+                        new UUID($jsonEntry['eventId'])
+                    );
+
+                    return new EntryWithEvent(
+                        $entry,
+                        $event
+                    );
+                },
+                $this->json['entries']
+            );
+        }
+
         return array_map(
             function (array $jsonEntry) {
                 return new Entry($jsonEntry);

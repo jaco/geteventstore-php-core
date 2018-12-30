@@ -99,7 +99,7 @@ final class StreamFeedIterator implements \Iterator
             return;
         }
 
-        $this->feed = $this->eventStore->openStreamFeed($this->streamName);
+        $this->feed = $this->eventStore->openStreamFeed($this->streamName, EntryEmbedMode::BODY());
 
         if ($this->feed->hasLink($this->startingRelation)) {
             $this->feed = $this
@@ -135,33 +135,7 @@ final class StreamFeedIterator implements \Iterator
             $entries
         );
 
-        $urls = array_map(
-            function ($entry) {
-                return $entry->getEventUrl();
-            },
-            $entries
-        );
+        $this->innerIterator = new ArrayIterator($entries);
 
-        $this->innerIterator = new ArrayIterator(
-            array_filter(
-                array_map(
-                    function ($entry, $event) {
-                        if (null === $entry || null === $event) {
-                            return null;
-                        }
-
-                        return new EntryWithEvent(
-                            $entry,
-                            $event
-                        );
-                    },
-                    $entries,
-                    $this->eventStore->readEventBatch($urls)
-                ),
-                function ($entryWithEvent) {
-                    return null !== $entryWithEvent;
-                }
-            )
-        );
     }
 }

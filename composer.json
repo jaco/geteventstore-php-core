@@ -32,7 +32,8 @@
     "guzzlehttp/psr7": "~1.2",
     "ramsey/uuid": "^3.4.1",
     "marc-mabe/php-enum": "^3.0",
-    "php-http/httplug": "^1.1"
+    "php-http/httplug": "^1.1",
+    "ext-json": "*"
   },
   "require-dev": {
     "guzzlehttp/guzzle": "~6.0",
